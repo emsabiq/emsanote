@@ -4,88 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catatan Pribadi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        /* CSS Minimalis & Responsif */
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f9; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
-        button { background-color: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
-        button:hover { background-color: #0056b3; }
-        .note-card { background: #fff; border-left: 4px solid #007bff; padding: 15px; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .note-header { display: flex; justify-content: space-between; font-size: 0.85em; color: #666; margin-bottom: 10px; }
-        .copy-btn { background-color: #e2e8f0; color: #333; padding: 5px 10px; font-size: 0.8em; margin-top: 10px; width: auto; display: inline-block; }
-        .copy-btn:hover { background-color: #cbd5e1; }
-        #loader { text-align: center; display: none; margin: 10px 0; font-style: italic; color: #666;}
+        /* --- RESET & TYPOGRAPHY --- */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; /* Warna background lebih soft */
+            color: #1e293b; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            line-height: 1.6;
+        }
+
+        /* --- CARDS & CONTAINERS --- */
+        .card { 
+            background: white; 
+            padding: 24px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); 
+            border: 1px solid #e2e8f0;
+            margin-bottom: 24px; 
+        }
+
+        h2 { margin-top: 0; font-size: 1.25rem; color: #0f172a; margin-bottom: 16px;}
+
+        /* --- FORM ELEMENTS --- */
+        input, textarea { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 16px; 
+            border: 1px solid #cbd5e1; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-family: inherit; 
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        input:focus, textarea:focus { 
+            outline: none; 
+            border-color: #3b82f6; 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+        }
+
+        /* --- BUTTONS --- */
+        button { 
+            background-color: #2563eb; 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600; 
+            width: 100%; 
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #1d4ed8; }
+        button:disabled { background-color: #94a3b8; cursor: not-allowed; }
+
+        /* --- NOTE LISTING --- */
+        .note-card { 
+            background: #ffffff; 
+            border-left: 5px solid #3b82f6; 
+            padding: 20px; 
+            margin-bottom: 16px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); 
+            border-top: 1px solid #f1f5f9;
+            border-right: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .note-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            font-size: 0.85em; 
+            margin-bottom: 12px; 
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .note-category { font-weight: 600; color: #0f172a; background: #e0f2fe; padding: 4px 8px; border-radius: 4px; }
+        .note-date { color: #64748b; }
+        
+        /* FORMATTING TEXT & LINK */
+        .note-content { 
+            white-space: pre-wrap; /* Mempertahankan enter/baris baru */
+            word-wrap: break-word; /* Mencegah link panjang keluar batas */
+            font-size: 0.95rem;
+            color: #334155;
+        }
+        .note-content a { 
+            color: #2563eb; 
+            text-decoration: none; 
+            font-weight: 500;
+        }
+        .note-content a:hover { text-decoration: underline; }
+
+        /* --- ACTIONS --- */
+        .copy-btn { 
+            background-color: #f1f5f9; 
+            color: #475569; 
+            padding: 6px 12px; 
+            font-size: 0.8rem; 
+            margin-top: 16px; 
+            width: auto; 
+            display: inline-block; 
+        }
+        .copy-btn:hover { background-color: #e2e8f0; }
+        #loader, #loaderFetch { text-align: center; display: none; margin: 10px 0; font-size: 0.9rem; color: #64748b; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>Simpan Catatan Baru</h2>
+        <h2>📝 Simpan Catatan Baru</h2>
         <form id="noteForm">
-            <input type="text" id="kategori" placeholder="Kategori (Contoh: Ide Bisnis, Draft WA, Referensi)" required>
-            <textarea id="catatan" rows="4" placeholder="Ketik catatan Anda di sini..." required></textarea>
+            <input type="text" id="kategori" placeholder="Kategori (Contoh: Referensi Link, Draft, Ide)" required>
+            <textarea id="catatan" rows="5" placeholder="Ketik catatan atau paste link di sini..." required></textarea>
             <button type="submit" id="btnSimpan">Simpan Catatan</button>
         </form>
-        <div id="loader">Menyimpan data...</div>
+        <div id="loader">Menyimpan data ke sistem...</div>
     </div>
 
     <div class="card">
-        <input type="text" id="searchInput" placeholder="🔍 Cari catatan dengan cepat...">
-        <div id="loaderFetch">Memuat catatan...</div>
+        <h2>🗂️ Arsip Catatan</h2>
+        <input type="text" id="searchInput" placeholder="🔍 Cari berdasarkan kata kunci atau kategori...">
+        <div id="loaderFetch">Memuat data terbaru...</div>
         <div id="notesContainer"></div>
     </div>
 
     <script>
-        // --- KONFIGURASI URL ---
-        // Ganti URL di bawah dengan URL dari Google Apps Script Anda
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxWfN_LOQOxx-ivhM2V_8PkrCdZiSvyQknArt3SlmJoq1VtvsMrB1DC0PevzjEvfb8oHQ/exec'; 
+        // --- MASUKKAN URL ANDA DI SINI ---
+        const API_URL = 'MASUKKAN_URL_WEB_APP_ANDA_DI_SINI'; 
         
-        let allNotes = []; // Menyimpan data sementara untuk fitur pencarian
+        let allNotes = []; 
 
-        // 1. Fungsi Mengambil Data (Fetching)
+        // Fungsi Ajaib: Mengubah teks URL menjadi Link yang bisa diklik
+        function linkify(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+            });
+        }
+
         async function fetchNotes() {
             document.getElementById('loaderFetch').style.display = 'block';
             try {
                 const response = await fetch(API_URL);
                 allNotes = await response.json();
-                // Urutkan dari yang terbaru ke terlama
                 allNotes.reverse();
                 renderNotes(allNotes);
             } catch (error) {
-                console.error('Gagal mengambil data:', error);
-                document.getElementById('notesContainer').innerHTML = '<p style="color:red">Gagal memuat data.</p>';
+                document.getElementById('notesContainer').innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data. Pastikan koneksi aman.</p>';
             } finally {
                 document.getElementById('loaderFetch').style.display = 'none';
             }
         }
 
-        // 2. Fungsi Menampilkan Data ke HTML
         function renderNotes(notes) {
             const container = document.getElementById('notesContainer');
             container.innerHTML = '';
             
             if(notes.length === 0) {
-                container.innerHTML = '<p>Belum ada catatan atau tidak ditemukan.</p>';
+                container.innerHTML = '<p style="text-align:center; color:#64748b;">Belum ada catatan yang ditemukan.</p>';
                 return;
             }
 
             notes.forEach(note => {
                 const div = document.createElement('div');
                 div.className = 'note-card';
+                
+                // Menerapkan fungsi linkify ke isi catatan
+                const formattedCatatan = linkify(note.catatan);
+
                 div.innerHTML = `
                     <div class="note-header">
-                        <strong>${note.kategori}</strong>
-                        <span>${note.tanggal}</span>
+                        <span class="note-category">${note.kategori}</span>
+                        <span class="note-date">${note.tanggal}</span>
                     </div>
-                    <div class="note-content" style="white-space: pre-wrap;">${note.catatan}</div>
-                    <button class="copy-btn" onclick="copyText(this, '${note.catatan.replace(/'/g, "\\'")}')">Copy Teks</button>
+                    <div class="note-content">${formattedCatatan}</div>
+                    <button class="copy-btn" onclick="copyText(this, '${note.catatan.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">📋 Copy Teks Asli</button>
                 `;
                 container.appendChild(div);
             });
         }
 
-        // 3. Fungsi Menyimpan Data (POST)
         document.getElementById('noteForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSimpan');
@@ -94,30 +198,28 @@
             const catatan = document.getElementById('catatan').value;
 
             btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
             loader.style.display = 'block';
 
             try {
                 await fetch(API_URL, {
                     method: 'POST',
-                    // Mode no-cors seringkali perlu dipakai jika terkendala kebijakan cross-origin Vercel -> GAS saat POST
                     mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ kategori, catatan })
                 });
                 
-                // Reset form & Refresh data
                 document.getElementById('noteForm').reset();
-                alert('Catatan berhasil disimpan!');
                 fetchNotes(); 
             } catch (error) {
                 alert('Terjadi kesalahan saat menyimpan.');
             } finally {
                 btn.disabled = false;
+                btn.innerText = 'Simpan Catatan';
                 loader.style.display = 'none';
             }
         });
 
-        // 4. Fitur Live Search
         document.getElementById('searchInput').addEventListener('input', (e) => {
             const keyword = e.target.value.toLowerCase();
             const filteredNotes = allNotes.filter(note => 
@@ -127,20 +229,18 @@
             renderNotes(filteredNotes);
         });
 
-        // 5. Fitur Copy to Clipboard
         function copyText(buttonElement, text) {
             navigator.clipboard.writeText(text).then(() => {
-                const originalText = buttonElement.innerText;
-                buttonElement.innerText = 'Tersalin! ✅';
-                buttonElement.style.backgroundColor = '#86efac';
+                const originalText = buttonElement.innerHTML;
+                buttonElement.innerHTML = '✅ Tersalin!';
+                buttonElement.style.backgroundColor = '#bbf7d0';
                 setTimeout(() => {
-                    buttonElement.innerText = originalText;
-                    buttonElement.style.backgroundColor = '#e2e8f0';
+                    buttonElement.innerHTML = originalText;
+                    buttonElement.style.backgroundColor = '#f1f5f9';
                 }, 2000);
             });
         }
 
-        // Jalankan fetch saat web pertama kali dibuka
         fetchNotes();
     </script>
 </body>
